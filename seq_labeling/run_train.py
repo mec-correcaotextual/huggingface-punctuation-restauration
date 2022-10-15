@@ -610,7 +610,7 @@ def main():
                 for prediction in true_predictions:
                     writer.write(" ".join(prediction) + "\n")
 
-    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification"}
+    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification", "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
     if data_args.dataset_name is not None:
         kwargs["dataset_tags"] = data_args.dataset_name
         if data_args.dataset_config_name is not None:

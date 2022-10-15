@@ -100,6 +100,11 @@ class DataTrainingArguments:
     """
 
     task_name: Optional[str] = field(default="ner", metadata={"help": "The name of the task (ner, pos...)."})
+
+    label_names: str = field(nargs='+',
+                            default=["O", "I-COMMA", "I-PERIOD"],
+                             metadata={"help": "The name of the task (ner, pos...)."})
+
     dataset_name: Optional[str] = field(
         default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
     )
@@ -316,7 +321,7 @@ def main():
     #    label_list = features[label_column_name].feature.names
     #  label_to_id = {i: i for i in range(len(label_list))}
     # else:
-    label_list = get_label_list(raw_datasets["train"][label_column_name])
+    label_list = data_args.label_names
     label_to_id = {l: i for i, l in enumerate(label_list)}
 
     num_labels = len(label_list)
@@ -377,12 +382,9 @@ def main():
     if model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id:
         if list(sorted(model.config.label2id.keys())) == list(sorted(label_list)):
             # Reorganize `label_list` to match the ordering of the model.
-            if labels_are_int:
-                label_to_id = {i: int(model.config.label2id[l]) for i, l in enumerate(label_list)}
-                label_list = [model.config.id2label[i] for i in range(num_labels)]
-            else:
-                label_list = [model.config.id2label[i] for i in range(num_labels)]
-                label_to_id = {l: i for i, l in enumerate(label_list)}
+
+            label_list = [model.config.id2label[i] for i in range(num_labels)]
+            label_to_id = {l: i for i, l in enumerate(label_list)}
         else:
             logger.warning(
                 "Your model seems to have been trained with labels, but they don't match the dataset: ",

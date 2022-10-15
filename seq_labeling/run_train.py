@@ -355,6 +355,7 @@ def main():
             revision=model_args.model_revision,
             use_auth_token=True if model_args.use_auth_token else None,
             add_prefix_space=True,
+            do_lower=True
         )
     else:
         tokenizer = AutoTokenizer.from_pretrained(
@@ -425,6 +426,7 @@ def main():
             max_length=data_args.max_seq_length,
             # We use this argument because the texts in our dataset are lists of words (with a label for each word).
             is_split_into_words=True,
+
         )
         labels = []
         for i, label in enumerate(examples[label_column_name]):

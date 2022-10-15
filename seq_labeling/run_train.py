@@ -100,11 +100,6 @@ class DataTrainingArguments:
     """
 
     task_name: Optional[str] = field(default="ner", metadata={"help": "The name of the task (ner, pos...)."})
-
-    label_names: str = field(nargs='+',
-                            default=["O", "I-COMMA", "I-PERIOD"],
-                             metadata={"help": "The name of the task (ner, pos...)."})
-
     dataset_name: Optional[str] = field(
         default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
     )
@@ -279,7 +274,7 @@ def main():
             data_args.dataset_config_name,
             cache_dir=model_args.cache_dir,
             use_auth_token=True if model_args.use_auth_token else None,
-            streaming=True,
+
         )
     else:
         data_files = {}
@@ -294,15 +289,26 @@ def main():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
+    if training_args.do_train:
+        column_names = raw_datasets["train"].column_names
+        features = raw_datasets["train"].features
+    else:
+        column_names = raw_datasets["validation"].column_names
+        features = raw_datasets["validation"].features
+
     if data_args.text_column_name is not None:
         text_column_name = data_args.text_column_name
-    else:
+    elif "tokens" in column_names:
         text_column_name = "tokens"
+    else:
+        text_column_name = column_names[0]
 
     if data_args.label_column_name is not None:
         label_column_name = data_args.label_column_name
-    else:
+    elif f"{data_args.task_name}_tags" in column_names:
         label_column_name = f"{data_args.task_name}_tags"
+    else:
+        label_column_name = column_names[1]
 
     # In the event the labels are not a `Sequence[ClassLabel]`, we will need to go through the dataset to get the
     # unique labels.
@@ -316,13 +322,13 @@ def main():
 
     # If the labels are of type ClassLabel, they are already integers and we have the map stored somewhere.
     # Otherwise, we have to get the list of labels manually.
-    # labels_are_int = isinstance(features[label_column_name].feature, ClassLabel)
-    # if labels_are_int:
-    #    label_list = features[label_column_name].feature.names
-    #  label_to_id = {i: i for i in range(len(label_list))}
-    # else:
-    label_list = data_args.label_names
-    label_to_id = {l: i for i, l in enumerate(label_list)}
+    labels_are_int = isinstance(features[label_column_name].feature, ClassLabel)
+    if labels_are_int:
+        label_list = features[label_column_name].feature.names
+        label_to_id = {i: i for i in range(len(label_list))}
+    else:
+        label_list = get_label_list(raw_datasets["train"][label_column_name])
+        label_to_id = {l: i for i, l in enumerate(label_list)}
 
     num_labels = len(label_list)
 
@@ -382,9 +388,12 @@ def main():
     if model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id:
         if list(sorted(model.config.label2id.keys())) == list(sorted(label_list)):
             # Reorganize `label_list` to match the ordering of the model.
-
-            label_list = [model.config.id2label[i] for i in range(num_labels)]
-            label_to_id = {l: i for i, l in enumerate(label_list)}
+            if labels_are_int:
+                label_to_id = {i: int(model.config.label2id[l]) for i, l in enumerate(label_list)}
+                label_list = [model.config.id2label[i] for i in range(num_labels)]
+            else:
+                label_list = [model.config.id2label[i] for i in range(num_labels)]
+                label_to_id = {l: i for i, l in enumerate(label_list)}
         else:
             logger.warning(
                 "Your model seems to have been trained with labels, but they don't match the dataset: ",
@@ -601,8 +610,7 @@ def main():
                 for prediction in true_predictions:
                     writer.write(" ".join(prediction) + "\n")
 
-    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification",
-              "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
+    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification", "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
     if data_args.dataset_name is not None:
         kwargs["dataset_tags"] = data_args.dataset_name
         if data_args.dataset_config_name is not None:

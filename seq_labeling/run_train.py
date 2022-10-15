@@ -274,7 +274,7 @@ def main():
             data_args.dataset_config_name,
             cache_dir=model_args.cache_dir,
             use_auth_token=True if model_args.use_auth_token else None,
-
+            streaming=True,
         )
     else:
         data_files = {}
@@ -289,26 +289,15 @@ def main():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    if training_args.do_train:
-        column_names = raw_datasets["train"].column_names
-        features = raw_datasets["train"].features
-    else:
-        column_names = raw_datasets["validation"].column_names
-        features = raw_datasets["validation"].features
-
     if data_args.text_column_name is not None:
         text_column_name = data_args.text_column_name
-    elif "tokens" in column_names:
-        text_column_name = "tokens"
     else:
-        text_column_name = column_names[0]
+        text_column_name = "tokens"
 
     if data_args.label_column_name is not None:
         label_column_name = data_args.label_column_name
-    elif f"{data_args.task_name}_tags" in column_names:
-        label_column_name = f"{data_args.task_name}_tags"
     else:
-        label_column_name = column_names[1]
+        label_column_name = f"{data_args.task_name}_tags"
 
     # In the event the labels are not a `Sequence[ClassLabel]`, we will need to go through the dataset to get the
     # unique labels.
@@ -610,7 +599,8 @@ def main():
                 for prediction in true_predictions:
                     writer.write(" ".join(prediction) + "\n")
 
-    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification", "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
+    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification",
+              "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
     if data_args.dataset_name is not None:
         kwargs["dataset_tags"] = data_args.dataset_name
         if data_args.dataset_config_name is not None:

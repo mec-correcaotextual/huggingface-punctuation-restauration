@@ -539,6 +539,8 @@ def main():
                 "accuracy": results["overall_accuracy"],
             }
 
+    training_args.load_best_model_at_end = True
+    training_args.save_total_limit = 1
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
@@ -548,6 +550,7 @@ def main():
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
+
     )
 
     # Training

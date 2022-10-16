@@ -364,6 +364,7 @@ def main():
         use_fast=model_args.use_fast_tokenizer,
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
+        do_lower=True
     )
     model = AutoModelForSeq2SeqLM.from_pretrained(
         model_args.model_name_or_path,
@@ -543,6 +544,8 @@ def main():
         result = {k: round(v, 4) for k, v in result.items()}
         return result
 
+    training_args.load_best_model_at_end = True
+    training_args.save_total_limit = 1
     # Initialize our Trainer
     trainer = Seq2SeqTrainer(
         model=model,

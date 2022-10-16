@@ -429,6 +429,7 @@ def main():
         )
 
     def preprocess_function(examples):
+        print(examples)
         inputs = [ex["input_text"] for ex in examples]
         targets = [ex["labels"] for ex in examples]
         inputs = [prefix + inp for inp in inputs]

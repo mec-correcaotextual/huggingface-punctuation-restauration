@@ -544,6 +544,7 @@ def main():
     training_args.load_best_model_at_end = True
     training_args.save_total_limit = 1
     training_args.saving_strategy = "epoch"
+    raining_args.evaluation_strategy = "epoch"
     # Initialize our Trainer
     trainer = Trainer(
         model=model,

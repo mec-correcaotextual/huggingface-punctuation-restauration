@@ -622,6 +622,7 @@ def main():
             kwargs["dataset"] = data_args.dataset_name
 
     if training_args.push_to_hub:
+        kwargs.pop('model_name_or_path')
         trainer.push_to_hub(**kwargs)
     else:
         trainer.create_model_card(**kwargs)

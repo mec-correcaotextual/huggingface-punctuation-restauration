@@ -16,6 +16,7 @@
 """
 Fine-tuning the library models for token classification.
 """
+import json
 # You can also adapt this script on your own token classification task and datasets. Pointers for this are left as
 # comments.
 
@@ -23,6 +24,7 @@ import logging
 import os
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 import datasets
@@ -601,10 +603,14 @@ def main():
             [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
-        metrics = metric.compute(predictions=true_predictions, references=labels)
+        true_labels = [
+            [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
+            for prediction, label in zip(predictions, labels)
+        ]
+        metrics = metric.compute(predictions=true_predictions, references=true_labels)
         trainer.log_metrics("predict", metrics)
         trainer.save_metrics("predict", metrics)
-
+        json.dump(metrics, Path(training_args.output_dir).joinpath("metrics.json").open("w"))
         # Save predictions
         output_predictions_file = os.path.join(training_args.output_dir, "predictions.txt")
         if trainer.is_world_process_zero():

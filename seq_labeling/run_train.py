@@ -591,6 +591,15 @@ def main():
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
+    class NpEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, np.integer):
+                return int(obj)
+            if isinstance(obj, np.floating):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super(NpEncoder, self).default(obj)
     # Predict
     if training_args.do_predict:
         logger.info("*** Predict ***")
@@ -609,7 +618,7 @@ def main():
         ]
         metrics = metric.compute(predictions=true_predictions, references=true_labels)
 
-        json.dump(metrics, Path(training_args.output_dir).joinpath("metrics.json").open("w"))
+        json.dump(metrics, Path(training_args.output_dir).joinpath("metrics.json").open("w"), cls=NpEncoder)
         # Save predictions
         output_predictions_file = os.path.join(training_args.output_dir, "predictions.txt")
         if trainer.is_world_process_zero():

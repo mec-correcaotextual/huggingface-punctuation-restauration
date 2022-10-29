@@ -601,7 +601,7 @@ def main():
             [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
-
+        metrics = metric.compute(predictions=true_predictions, references=labels)
         trainer.log_metrics("predict", metrics)
         trainer.save_metrics("predict", metrics)
 

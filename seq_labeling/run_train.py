@@ -618,7 +618,7 @@ def main():
         ]
         metrics = metric.compute(predictions=true_predictions, references=true_labels)
 
-        json.dump(metrics, Path(training_args.output_dir).joinpath("metrics_prediction.json").open("w"), cls=NpEncoder)
+        json.dump(metrics, Path(training_args.output_dir).joinpath("prediction_metrics.json").open("w"), cls=NpEncoder)
         # Save predictions
         output_predictions_file = os.path.join(training_args.output_dir, "predictions.txt")
         if trainer.is_world_process_zero():

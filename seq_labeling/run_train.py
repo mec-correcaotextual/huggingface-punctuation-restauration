@@ -608,8 +608,7 @@ def main():
             for prediction, label in zip(predictions, labels)
         ]
         metrics = metric.compute(predictions=true_predictions, references=true_labels)
-        trainer.log_metrics("predict", metrics)
-        trainer.save_metrics("predict", metrics)
+
         json.dump(metrics, Path(training_args.output_dir).joinpath("metrics.json").open("w"))
         # Save predictions
         output_predictions_file = os.path.join(training_args.output_dir, "predictions.txt")

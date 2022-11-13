@@ -275,7 +275,7 @@ def main():
             data_args.dataset_name,
             data_args.dataset_config_name,
             cache_dir=model_args.cache_dir,
-            use_auth_token=True if model_args.use_auth_token else None,
+            use_auth_token=True
 
         )
     else:
@@ -600,6 +600,7 @@ def main():
             if isinstance(obj, np.ndarray):
                 return obj.tolist()
             return super(NpEncoder, self).default(obj)
+
     # Predict
     if training_args.do_predict:
         logger.info("*** Predict ***")
@@ -626,7 +627,8 @@ def main():
                 for prediction in true_predictions:
                     writer.write(" ".join(prediction) + "\n")
 
-    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification", "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
+    kwargs = {"finetuned_from": model_args.model_name_or_path, "tasks": "token-classification",
+              "model_name_or_path": "tiagoblima/punctuation-nilc-bert"}
     if data_args.dataset_name is not None:
         kwargs["dataset_tags"] = data_args.dataset_name
         if data_args.dataset_config_name is not None:

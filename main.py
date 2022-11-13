@@ -1,6 +1,6 @@
 import json
 
-from transformers import pipeline, AutoModelForSequenceClassification
+from transformers import pipeline, AutoModelForSequenceClassification, T5ForConditionalGeneration, T5Tokenizer
 
 from utils import remove_punctuation
 
@@ -24,6 +24,11 @@ def main():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    main()
+    checkpoint = 'tiagoblima/punctuation-nilc-t5-base'
+    import torch
+    print(torch.__version__)
+    T5ForConditionalGeneration.from_pretrained(checkpoint, use_auth_token=True, returns='py').save_pretrained('models/tiagoblima/punctuation-nilc-t5-base')
+    tokenizer = T5Tokenizer.from_pretrained(checkpoint, use_auth_token=True).save_pretrained('models/tiagoblima/punctuation-nilc-t5-base')
+    #main()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

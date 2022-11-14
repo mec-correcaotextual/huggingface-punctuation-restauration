@@ -263,7 +263,7 @@ def main():
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
     wandb_tags = model_args.model_name_or_path.split('-')[:1]
-    wandb.init(project=args.project_name,
+    wandb.init(project=data_args.project_name,
                name=model_args.output_dir,
                tags=wandb_tags,
                group="t5")

@@ -264,7 +264,7 @@ def main():
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
     wandb_tags = model_args.model_name_or_path.split('-')[:1]
     wandb.init(project=data_args.project_name,
-               name=model_args.output_dir,
+               name=training_args.output_dir,
                tags=wandb_tags,
                group="t5")
 

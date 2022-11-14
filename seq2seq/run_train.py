@@ -111,6 +111,9 @@ class DataTrainingArguments:
     dataset_name: Optional[str] = field(
         default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
     )
+    project_name: Optional[str] = field(default="punctuation-edu",
+                                        metadata={"help": "The name of the project"})
+
     dataset_config_name: Optional[str] = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
@@ -257,7 +260,13 @@ def main():
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
-    send_example_telemetry("run_translation", model_args, data_args)
+    # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
+    # information sent is the one passed as arguments along with your Python/PyTorch versions.
+    wandb_tags = model_args.model_name_or_path.split('-')[:1]
+    wandb.init(project=args.project_name,
+               name=model_args.output_dir,
+               tags=wandb_tags,
+               group="t5")
 
     # Setup logging
     logging.basicConfig(

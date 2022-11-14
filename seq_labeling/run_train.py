@@ -26,7 +26,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
-
+import wandb
 import datasets
 import numpy as np
 from datasets import ClassLabel, load_dataset

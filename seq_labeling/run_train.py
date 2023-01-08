@@ -298,8 +298,8 @@ def main():
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
     if training_args.do_train:
-        column_names = raw_datasets["train"].column_names
-        features = raw_datasets["train"].features
+        column_names = raw_datasets["test"].column_names
+        features = raw_datasets["test"].features
     else:
         column_names = raw_datasets["validation"].column_names
         features = raw_datasets["validation"].features
@@ -465,7 +465,7 @@ def main():
     if training_args.do_train:
         if "train" not in raw_datasets:
             raise ValueError("--do_train requires a train dataset")
-        train_dataset = raw_datasets["train"]
+        train_dataset = raw_datasets["test"]
         if data_args.max_train_samples is not None:
             max_train_samples = min(len(train_dataset), data_args.max_train_samples)
             train_dataset = train_dataset.select(range(max_train_samples))
